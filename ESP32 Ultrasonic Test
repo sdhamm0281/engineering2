@@ -1,0 +1,62 @@
+// Ultrasonic Sensor Test Code
+// This tests the HC-SR04 ultrasonic sensor functionality
+
+// Ultrasonic sensor pins
+#define ULTRASONIC_TRIG 5
+#define ULTRASONIC_ECHO 18
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Initialize ultrasonic sensor pins
+  pinMode(ULTRASONIC_TRIG, OUTPUT);
+  pinMode(ULTRASONIC_ECHO, INPUT);
+  
+  Serial.println("Ultrasonic Sensor Test Started!");
+  Serial.println("Distance readings every 500ms:");
+  Serial.println("----------------------------");
+}
+
+void loop() {
+  int distance = getDistance();
+  
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  
+  // Visual indicator for close objects
+  if (distance < 10) {
+    Serial.println("*** VERY CLOSE ***");
+  } else if (distance < 20) {
+    Serial.println("** CLOSE **");
+  } else if (distance < 50) {
+    Serial.println("* MODERATE *");
+  }
+  
+  delay(500);
+}
+
+// Function to measure distance with ultrasonic sensor
+int getDistance() {
+  // Clear the trigger pin
+  digitalWrite(ULTRASONIC_TRIG, LOW);
+  delayMicroseconds(2);
+  
+  // Send 10us pulse to trigger pin
+  digitalWrite(ULTRASONIC_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(ULTRASONIC_TRIG, LOW);
+  
+  // Read the echo pin and calculate distance
+  long duration = pulseIn(ULTRASONIC_ECHO, HIGH, 30000); // 30ms timeout
+  
+  // Check for timeout (no echo received)
+  if (duration == 0) {
+    return 999; // Return max value if no echo
+  }
+  
+  // Calculate distance in centimeters
+  int distance = duration * 0.034 / 2;
+  
+  return distance;
+}
