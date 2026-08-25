@@ -1,31 +1,53 @@
-/* Sweep
- by BARRAGAN <http://barraganstudio.com>
- This example code is in the public domain.
+#include <ESP32Servo.h>
 
- modified 8 Nov 2013
- by Scott Fitzgerald
- https://www.arduino.cc/en/Tutorial/LibraryExamples/Sweep
-*/
-
-#include <Servo.h>
-
-Servo myservo;  // create Servo object to control a servo
-// twelve Servo objects can be created on most boards
-
-int pos = 0;    // variable to store the servo position
+Servo myServo;  // Create servo object
+int servoPin = 15;  // GPIO pin for servo signal (you can change this)
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the Servo object
+  Serial.begin(115200);
+  
+  // Allow allocation of all timers for servo library
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  
+  // Attach servo to pin
+  myServo.attach(servoPin, 500, 2400);  // Min and max pulse widths for most servos
+  
+  // Start at 90 degrees
+  myServo.write(90);
+  Serial.println("Starting at 90 degrees");
+  delay(1000);  // Give servo time to reach initial position
 }
 
 void loop() {
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15 ms for the servo to reach the position
+  // Sweep from 90 to 180 degrees
+  Serial.println("Sweeping to 180 degrees...");
+   {
+    myServo.write(180);
+    delay(15);  // Small delay for smooth movement
   }
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15 ms for the servo to reach the position
+  Serial.println("At 180 degrees - pausing 1 second");
+  delay(1000);  // Stop for 1 second at 180
+  
+  // Sweep from 180 to 0 degrees
+  Serial.println("Sweeping to 0 degrees...");
+  {
+    myServo.write(0);
+    delay(15);  // Small delay for smooth movement
   }
+  Serial.println("At 0 degrees - pausing 1 second");
+  delay(1000);  // Stop for 1 second at 0
+  
+  // Move back to 90 degrees
+  Serial.println("Moving back to 90 degrees...");
+  {
+    myServo.write(90);
+    delay(15);  // Small delay for smooth movement
+  }
+  Serial.println("At 90 degrees - pausing 5 seconds");
+  delay(5000);  // Pause for 5 seconds at 90 degrees
+  
+  Serial.println("Cycle complete, starting again...\n");
 }
